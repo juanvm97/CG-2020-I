@@ -34,7 +34,6 @@ const char* fragmentShader2Source = "#version 330 core\n"
 "   FragColor = ourColor2;\n"
 "}\n\0";
 
-
 float i1 = 1.0;
 bool br1 = false;
 bool bg1 = false;
@@ -47,7 +46,7 @@ int shaderProgram1;
 int shaderProgram2;
 
 int main()
-{
+{    
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -163,7 +162,7 @@ int main()
     
     glBindVertexArray(VAOs[0]);
     glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(firstTriangle), firstTriangle, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(firstTriangle), firstTriangle, GL_STATIC_DRAW);    
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
@@ -240,6 +239,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     glUseProgram(shaderProgram1);
     int vertexColorLocation = glGetUniformLocation(shaderProgram1, "ourColor1");
     glUniform4f(vertexColorLocation, br1 * i1, bg1 * i1, bb1 * i1, 1.0f);
+
     glUseProgram(shaderProgram2);
     int vertexColorLocation2 = glGetUniformLocation(shaderProgram2, "ourColor2");
     glUniform4f(vertexColorLocation2, br2 * i2, bg2 * i2, bb2 * i2, 1.0f);
