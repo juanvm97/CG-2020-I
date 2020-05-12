@@ -168,24 +168,24 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
     //firstTriangle
     else if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
-        mtxMulVec(translationLeft, firstTriangle);
-        mtxMulVec(translationLeft, firstTriangle + 3);
-        mtxMulVec(translationLeft, firstTriangle + 6);
+        for (int i = 0; i < 3; i++) {
+            translationLeft(firstTriangle + (i * 3), 0.2f);
+        }
     }
     else if (key == GLFW_KEY_W && action == GLFW_PRESS) {
-        mtxMulVec(translationRight, firstTriangle);
-        mtxMulVec(translationRight, firstTriangle + 3);
-        mtxMulVec(translationRight, firstTriangle + 6);
+        for (int i = 0; i < 3; i++) {
+            translationRight(firstTriangle + (i * 3), 0.2f);
+        }
     }
     else if (key == GLFW_KEY_E && action == GLFW_PRESS) {
-        mtxMulVec(translationUp, firstTriangle);
-        mtxMulVec(translationUp, firstTriangle + 3);
-        mtxMulVec(translationUp, firstTriangle + 6);
+        for (int i = 0; i < 3; i++) {
+            translationUp(firstTriangle + (i * 3), 0.2f);
+        }
     }
     else if (key == GLFW_KEY_R && action == GLFW_PRESS) {
-        mtxMulVec(translationDown, firstTriangle);
-        mtxMulVec(translationDown, firstTriangle + 3);
-        mtxMulVec(translationDown, firstTriangle + 6);        
+        for (int i = 0; i < 3; i++) {
+            translationDown(firstTriangle + (i * 3), 0.2f);
+        }
     }
     else if (key == GLFW_KEY_A && action == GLFW_PRESS) {
         mtxMulVec(mirrorYZ, firstTriangle);
@@ -198,41 +198,51 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         mtxMulVec(mirrorXZ, firstTriangle + 6);
     }
     else if (key == GLFW_KEY_D && action == GLFW_PRESS) {
-        scale(firstTriangle, 1.1);
+        for (int i = 0; i < 3; i++) {
+            scale(firstTriangle + (i * 3), 1.1);
+        }
     }
     else if (key == GLFW_KEY_F && action == GLFW_PRESS) {
-        scale(firstTriangle, 0.9);
+        for (int i = 0; i < 3; i++) {
+            scale(firstTriangle + (i * 3), 0.9);
+        }
     }
     else if (key == GLFW_KEY_Z && action == GLFW_PRESS) {
-        rotateZ(firstTriangle, 0.3);
+        for (int i = 0; i < 3; i++) {
+            rotateZ(firstTriangle + (i * 3), 45);
+        }
     }
     else if (key == GLFW_KEY_X && action == GLFW_PRESS) {
-        rotateY(firstTriangle, 0.3);
+        for (int i = 0; i < 3; i++) {
+            rotateX(firstTriangle + (i * 3), 15);
+        }
     }
     else if (key == GLFW_KEY_C && action == GLFW_PRESS) {
-        rotateX(firstTriangle, 0.3);
+        for (int i = 0; i < 3; i++) {
+            rotateY(firstTriangle + (i * 3), 15);
+        }
     }
 
     //secon
     else if (key == GLFW_KEY_U && action == GLFW_PRESS) {
-        mtxMulVec(translationLeft, secondTriangle);
-        mtxMulVec(translationLeft, secondTriangle + 3);
-        mtxMulVec(translationLeft, secondTriangle + 6);
+        for (int i = 0; i < 3; i++) {
+            translationLeft(secondTriangle + (i * 3), 0.2f);
+        }
     }
     else if (key == GLFW_KEY_I && action == GLFW_PRESS) {
-        mtxMulVec(translationRight, secondTriangle);
-        mtxMulVec(translationRight, secondTriangle + 3);
-        mtxMulVec(translationRight, secondTriangle + 6);
+        for (int i = 0; i < 3; i++) {
+            translationRight(secondTriangle + (i * 3), 0.2f);
+        }
     }
     else if (key == GLFW_KEY_O && action == GLFW_PRESS) {
-        mtxMulVec(translationUp, secondTriangle);
-        mtxMulVec(translationUp, secondTriangle + 3);
-        mtxMulVec(translationUp, secondTriangle + 6);
+        for (int i = 0; i < 3; i++) {
+            translationUp(secondTriangle + (i * 3), 0.2f);
+        }
     }
     else if (key == GLFW_KEY_P && action == GLFW_PRESS) {
-        mtxMulVec(translationDown, secondTriangle);
-        mtxMulVec(translationDown, secondTriangle + 3);
-        mtxMulVec(translationDown, secondTriangle + 6);
+        for (int i = 0; i < 3; i++) {
+            translationDown(secondTriangle + (i * 3), 0.2f);
+        }
     }
     else if (key == GLFW_KEY_H && action == GLFW_PRESS) {
         mtxMulVec(mirrorYZ, secondTriangle);
@@ -245,19 +255,29 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         mtxMulVec(mirrorXZ, secondTriangle + 6);
     }
     else if (key == GLFW_KEY_K && action == GLFW_PRESS) {
-        scale(secondTriangle, 1.1);
+        for (int i = 0; i < 3; i++) {
+            scale(secondTriangle + (i * 3), 1.1);
+        }
     }
     else if (key == GLFW_KEY_L && action == GLFW_PRESS) {
-        scale(secondTriangle, 0.9);
+        for (int i = 0; i < 3; i++) {
+            scale(secondTriangle + (i * 3), 0.9);
+        }
     }
     else if (key == GLFW_KEY_B && action == GLFW_PRESS) {
-        rotateZ(secondTriangle, 0.3);
+        for (int i = 0; i < 3; i++) {
+            rotateZ(secondTriangle + (i * 3), 45);
+        }
     }
     else if (key == GLFW_KEY_N && action == GLFW_PRESS) {
-        rotateY(secondTriangle, 0.3);
+        for (int i = 0; i < 3; i++) {
+            rotateX(secondTriangle + (i * 3), 15);
+        }
     }
     else if (key == GLFW_KEY_M && action == GLFW_PRESS) {
-        rotateX(secondTriangle, 0.3);
+        for (int i = 0; i < 3; i++) {
+            rotateY(secondTriangle + (i * 3), 15);
+        }
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);

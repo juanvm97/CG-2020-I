@@ -34,6 +34,7 @@ float vertices[] = {
      0.0f,  0.6f, 0.0f
 };
 
+
 int main()
 {
     // glfw: initialize and configure
@@ -177,22 +178,22 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
     else if (key == GLFW_KEY_W && action == GLFW_PRESS) {
         for (int i = 0; i < 8; i++) {
-            mtxMulVec(translationUp, vertices + (i*3));
+            translationUp(vertices + (i * 3), 0.2f);
         }
     }
     else if (key == GLFW_KEY_S && action == GLFW_PRESS) {
         for (int i = 0; i < 8; i++) {
-            mtxMulVec(translationDown, vertices + (i * 3));
+            translationDown(vertices + (i * 3), 0.2f);
         }
     }
     else if (key == GLFW_KEY_A && action == GLFW_PRESS) {
         for (int i = 0; i < 8; i++) {
-            mtxMulVec(translationLeft, vertices + (i * 3));
+            translationLeft(vertices + (i * 3), 0.2f);
         }
     }
     else if (key == GLFW_KEY_D && action == GLFW_PRESS) {
         for (int i = 0; i < 8; i++) {
-            mtxMulVec(translationRight, vertices + (i * 3));
+            translationRight(vertices + (i * 3), 0.2f);
         }
     }
     //Rotate
@@ -225,6 +226,16 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
         for (int i = 0; i < 8; i++) {
             scale(vertices + (i * 3), 0.9);
+        }
+    }
+    //Combinacion de matrices
+    else if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+    
+        float* mtx1 = getScaleMtx(0.7f, 0.7f, 0.7f);
+        float* mtx2 = getRotateZMtx(50.0);
+        float* mtx3 = mtxMulMxt(mtx1, mtx2);
+        for (int i = 0; i < 8; i++) {
+            mtxMulVec(mtx3, vertices + (i * 3));
         }
     }
 

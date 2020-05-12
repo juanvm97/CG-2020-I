@@ -1,6 +1,41 @@
 
 #include <fun/fun.h>
 
+void printMtx(float* mtx)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            std::cout << mtx[(i * 4) + j] << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+float* mtxMulMxt(float* mtx1, float* mtx2)
+{
+    float* result = new float[16];
+
+    float temp = 0.0f;
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            temp = 0.0f;
+            for (int k = 0; k < 4; k++)
+            {
+                std::cout << i << " " << k << " * " << k << " " << j << std::endl;
+                temp += (mtx1[(i * 4) + k] * mtx2[(k * 4) + j]);
+            }
+            result[(i * 4) + j] = temp;
+        }
+        std::cout << std::endl;
+    }
+
+    return result;
+}
+
 void mtxMulVec(float* mtx, float* vec)
 {
     float* tempVec = new float[4];
@@ -27,59 +62,152 @@ void mtxMulVec(float* mtx, float* vec)
     }
 }
 
-void scale(float* vec, float s)
+float* getScaleMtx(float unitsX, float unitsY, float unitsZ)
 {
-    identily[0] = s;
-    identily[5] = s;
-    identily[10] = s;
+    float* result = new float[16];
 
-    mtxMulVec(identily, vec);
-    mtxMulVec(identily, vec + 3);
-    mtxMulVec(identily, vec + 6);
+    for (int i = 0; i < 16; i++)
+    {
+        result[i] = 0.0f;
+    }
+    result[0] = unitsX;
+    result[5] = unitsY;
+    result[10] = unitsZ;
+    result[15] = 1.0f;
 
-    identily[0] = 1;
-    identily[5] = 1;
-    identily[10] = 1;
+    return result;
 }
 
-void rotateZ(float* vec, float angle)
+void scale(float* vec, float units)
 {
-    float mtx[] = {
-        cos(angle), -sin(angle), 0.0f, 0.0f,
-        sin(angle), cos(angle), 0.0f, 0.0f,
+    float* mtx = getScaleMtx(units, units, units);
+
+    mtxMulVec(mtx, vec);
+}
+
+float* getRotateZMtx(float angle)
+{
+    float temp[] = {
+        cos(M_PI * angle / 180), -sin(M_PI * angle / 180), 0.0f, 0.0f,
+        sin(M_PI * angle / 180), cos(M_PI * angle / 180), 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f,
     };
 
+    float* result = new float[16];
+    for (int i = 0; i < 16; i++)
+    {
+        result[i] = temp[i];
+    }
+
+    return result;
+}
+
+void rotateZ(float* vec, float angle)
+{
+    float* mtx = getRotateZMtx(angle);
+
     mtxMulVec(mtx, vec);
-    mtxMulVec(mtx, vec + 3);
-    mtxMulVec(mtx, vec + 6);
+}
+
+float* getRotateYMtx(float angle)
+{
+    float temp[] = {
+        cos(M_PI * angle / 180), 0.0f, sin(M_PI * angle / 180), 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        -sin(M_PI * angle / 180), 0.0f, cos(M_PI * angle / 180), 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f,
+    };
+
+    float* result = new float[16];
+    for (int i = 0; i < 16; i++)
+    {
+        result[i] = temp[i];
+    }
+
+    return result;
 }
 
 void rotateY(float* vec, float angle)
 {
-    float mtx[] = {
-        cos(angle), 0.0f, sin(angle), 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        -sin(angle), 0.0f, cos(angle), 0.0f,         
+    float* mtx = getRotateYMtx(angle);
+
+    mtxMulVec(mtx, vec);
+}
+
+float* getRotateXMtx(float angle)
+{
+    float temp[] = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, cos(M_PI * angle / 180), -sin(M_PI * angle / 180), 0.0f,
+        0.0f, sin(M_PI * angle / 180), cos(M_PI * angle / 180), 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f,
     };
 
-    mtxMulVec(mtx, vec);
-    mtxMulVec(mtx, vec + 3);
-    mtxMulVec(mtx, vec + 6);
+    float* result = new float[16];
+    for (int i = 0; i < 16; i++)
+    {
+        result[i] = temp[i];
+    }
+
+    return result;
 }
 
 void rotateX(float* vec, float angle)
 {
-    float mtx[] = {
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, cos(angle), -sin(angle), 0.0f,
-        0.0f, sin(angle), cos(angle), 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f,
-    };
+    float* mtx = getRotateXMtx(angle);
 
     mtxMulVec(mtx, vec);
-    mtxMulVec(mtx, vec + 3);
-    mtxMulVec(mtx, vec + 6);
+}
+
+float* getTranslationMtx(float unitsX, float unitsY, float unitsZ)
+{
+    float* result = new float[16];
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            if (i == j)
+            {
+                result[(i * 4) + j] = 1.0f;
+            }
+            else
+            {
+                result[(i * 4) + j] = 0.0f;
+            }
+        }
+    }
+    result[3] = unitsX;
+    result[7] = unitsY;
+    result[11] = unitsZ;
+
+    return result;
+}
+
+void translationRight(float* vec, float units)
+{
+    float* mtx = getTranslationMtx(units, 0.0f, 0.0f);
+
+    mtxMulVec(mtx, vec);
+}
+
+void translationLeft(float* vec, float units)
+{
+    float* mtx = getTranslationMtx(-units, 0.0f, 0.0f);
+
+    mtxMulVec(mtx, vec);
+}
+
+void translationUp(float* vec, float units)
+{
+    float* mtx = getTranslationMtx(0.0f, units, 0.0f);
+
+    mtxMulVec(mtx, vec);
+}
+
+void translationDown(float* vec, float units)
+{
+    float* mtx = getTranslationMtx(0.0f, -units, 0.0f);
+
+    mtxMulVec(mtx, vec);
 }
