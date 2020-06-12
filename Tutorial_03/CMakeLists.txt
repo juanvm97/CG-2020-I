@@ -1,4 +1,4 @@
-project( Lab06 )
+project( shaders )
 
 message( "Configuring main application - ${PROJECT_NAME} : " )
 

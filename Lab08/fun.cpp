@@ -1,5 +1,5 @@
 
-#include <fun/fun.h>
+#include "fun.h"
 
 void printMtx(float* mtx)
 {

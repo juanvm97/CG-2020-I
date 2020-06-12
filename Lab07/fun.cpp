@@ -1,5 +1,5 @@
 
-#include <fun/fun.h>
+#include "fun.h"
 
 void printMtx(float* mtx)
 {
@@ -25,10 +25,12 @@ float* mtxMulMxt(float* mtx1, float* mtx2)
             temp = 0.0f;
             for (int k = 0; k < 4; k++)
             {
+                std::cout << i << " " << k << " * " << k << " " << j << std::endl;
                 temp += (mtx1[(i * 4) + k] * mtx2[(k * 4) + j]);
             }
             result[(i * 4) + j] = temp;
-        }        
+        }
+        std::cout << std::endl;
     }
 
     return result;
@@ -91,7 +93,7 @@ float* getRotateZMtx(float angle)
         0.0f, 0.0f, 1.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f,
     };
-    
+
     float* result = new float[16];
     for (int i = 0; i < 16; i++)
     {
@@ -102,7 +104,7 @@ float* getRotateZMtx(float angle)
 }
 
 void rotateZ(float* vec, float angle)
-{    
+{
     float* mtx = getRotateZMtx(angle);
 
     mtxMulVec(mtx, vec);
@@ -172,7 +174,7 @@ float* getTranslationMtx(float unitsX, float unitsY, float unitsZ)
             else
             {
                 result[(i * 4) + j] = 0.0f;
-            }            
+            }
         }
     }
     result[3] = unitsX;

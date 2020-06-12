@@ -1,4 +1,4 @@
-project( Lab06 )
+project( mytest1_glfw )
 
 message( "Configuring main application - ${PROJECT_NAME} : " )
 
@@ -50,7 +50,7 @@ if ( CMAKE_BUILD_TYPE STREQUAL "Debug")
 	    message("\nOpenGL_GLUT_GLFW_Program -- Debug mode Windows ****************")
 		target_link_libraries( ${PROJECT_NAME} 
 						   opengl32
-						   freeglutd.lib
+						   freeglut_staticd.lib
 						   glad.lib
 	                       glfw3.lib
 						   glew32d.lib
@@ -61,9 +61,16 @@ if ( CMAKE_BUILD_TYPE STREQUAL "Debug")
 		message("\nOpenGL_GLUT_GLFW_Program -- Debug mode Linux ****************")
 		target_link_libraries( ${PROJECT_NAME} 
 						   ${OPENGL_LIBRARY}
-							-gl
+							-lm
+							-lGL
+							-lGLU
+							-lX11
+							-lXi
+							-lXxf86vm 
+							-lXrandr 
 							-pthread 
-							dl
+							-ldl
+							-lm
 						   libglad.a
 	                       libglfw3.a
 						   libGLEWd.a
@@ -71,14 +78,13 @@ if ( CMAKE_BUILD_TYPE STREQUAL "Debug")
 						   libfreeimage.a
 						   libglm_static.a
 						    )
-
 	endif()					    	
 else()
 	if ( WIN32 )
 		message("\nOpenGL_GLUT_GLFW_Program -- Release mode Windows ****************")
 		target_link_libraries( ${PROJECT_NAME} 
 						   opengl32
-						   freeglut.lib
+						   freeglut_static.lib
 						   glad.lib
 	                       glfw3.lib
 						   glew32.lib
@@ -89,9 +95,16 @@ else()
 		message("\nOpenGL_GLUT_GLFW_Program -- Release mode Linux ****************")
 		target_link_libraries( ${PROJECT_NAME} 
 						  ${OPENGL_LIBRARY}
-							-gl
+							-lm
+							-lGL
+							-lGLU
+							-lX11
+							-lXi
+							-lXxf86vm 
+							-lXrandr 
 							-pthread 
-							dl
+							-ldl
+							-lm
 						   libglad.a
 	                       libglfw3.a
 						   libGLEW.a
@@ -99,6 +112,5 @@ else()
 						   libfreeimage.a
 						   libglm_static.a
 						    )
-
 	endif()	
 endif ()                      

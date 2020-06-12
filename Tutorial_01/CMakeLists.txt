@@ -1,4 +1,4 @@
-project( Lab06 )
+project( mytest1_glfw )
 
 message( "Configuring main application - ${PROJECT_NAME} : " )
 

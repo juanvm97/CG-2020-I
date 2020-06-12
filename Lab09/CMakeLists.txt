@@ -1,4 +1,4 @@
-project( Lab06 )
+project( Lab09-Parcial )
 
 message( "Configuring main application - ${PROJECT_NAME} : " )
 

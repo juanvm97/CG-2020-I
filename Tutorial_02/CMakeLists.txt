@@ -1,4 +1,4 @@
-project( Lab06 )
+project( triangulo_colorido )
 
 message( "Configuring main application - ${PROJECT_NAME} : " )
 

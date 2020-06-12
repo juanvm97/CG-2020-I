@@ -1,68 +1,104 @@
-cmake_minimum_required(VERSION 3.9.x FATAL_ERROR)
-project(Lab01)
+project( Lab01 )
 
-#For adding source files
-file(GLOB_RECURSE SOURCE_FILES
-	${CMAKE_SOURCE_DIR}/src/*.c
-	${CMAKE_SOURCE_DIR}/src/*.cpp)
-
-#Add headers
-file(GLOB_RECURSE HEADER_FILES
-	${CMAKE_SOURCE_DIR}/include/*.h
-	${CMAKE_SOURCE_DIR}/include/*.hpp)
-
-#Add libraries
-link_directories(${CMAKE_SOURCE_DIR}/lib)
-
-#Configure assets header file
-include_directories(${CMAKE_BINARY_DIR}/src)
-
-add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+message( "Configuring main application - ${PROJECT_NAME} : " )
 
 # OpenGL
 find_package(OpenGL REQUIRED)
 
-# GLFW
-find_package(GLFW3 REQUIRED)
-message(STATUS "Found GLFW3 in ${GLFW3_INCLUDE_DIR}")
+file(GLOB SOURCES "*.cpp" ${DEPENDENCY_DIR}/include/glad/glad/glad.c )
+file(GLOB HEADERS "*.h" )
+file(GLOB SHADERS "*.vert" "*.frag" "*.vs" "*.fs" )
 
-# GLAD
-add_library(GLAD "src/glad.c")
+include_directories( 
+${DEPENDENCY_DIR}/include/glad/ 
+${DEPENDENCY_DIR}/include/glfw/
+${DEPENDENCY_DIR}/include/freeimage/
+${DEPENDENCY_DIR}/include/glew
+${DEPENDENCY_DIR}/include/glm
+${DEPENDENCY_DIR}/include/freeglut
 
-
-set(LIBS glfw3 opengl32 GLAD)
-
-# Define the include DIRs
-include_directories(
-	"${CMAKE_SOURCE_DIR}/src"
-	"${CMAKE_SOURCE_DIR}/include"
 )
 
-# Define the link libraries
-target_link_libraries(${PROJECT_NAME} ${LIBS})
+message( "\nBuild mode test is: ${CMAKE_BUILD_TYPE}" )
 
-if(MSVC_IDE)
-	# Macro to preserve source files hierarchy in the IDE
-	macro(GroupSources curdir)
-		file(GLOB children RELATIVE ${PROJECT_SOURCE_DIR}/${curdir} ${PROJECT_SOURCE_DIR}/${curdir}/*)
+if ( CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message("\nOpenGL_GLUT_GLFW_Program -- Debug mode ****************")
+	link_directories(
+	${DEPENDENCY_DIR}/lib/glad/Debug/
+	${DEPENDENCY_DIR}/lib/glfw/Debug/
+	${DEPENDENCY_DIR}/lib/freeglut/Debug/
+	${DEPENDENCY_DIR}/lib/freeimage/Debug/
+	${DEPENDENCY_DIR}/lib/glew/Debug/
+	${DEPENDENCY_DIR}/lib/glm/Debug/
+	)
+else()
+    message("\nOpenGL_GLUT_GLFW_Program -- Release mode ****************")
+	link_directories(
+	${DEPENDENCY_DIR}/lib/glad/Release/
+	${DEPENDENCY_DIR}/lib/glfw/Release/
+	${DEPENDENCY_DIR}/lib/freeglut/Release/
+	${DEPENDENCY_DIR}/lib/freeimage/Release/
+	${DEPENDENCY_DIR}/lib/glew/Release/
+	${DEPENDENCY_DIR}/lib/glm/Release/
+	)
+endif ()
+ 
+add_executable( ${PROJECT_NAME}  ${HEADERS} ${SOURCES} ${SHADERS} )
 
-		foreach(child ${children})
-			if(IS_DIRECTORY ${PROJECT_SOURCE_DIR}/${curdir}/${child})
-				GroupSources(${curdir}/${child})
-			else()
-				string(REPLACE "/" "\\" groupname ${curdir})
-				string(REPLACE "src" "Sources" groupname ${groupname})
-				source_group(${groupname} FILES ${PROJECT_SOURCE_DIR}/${curdir}/${child})
-			endif()
-		endforeach()
-	endmacro()
+if ( CMAKE_BUILD_TYPE STREQUAL "Debug")
+	if ( WIN32 )
+	    message("\nOpenGL_GLUT_GLFW_Program -- Debug mode Windows ****************")
+		target_link_libraries( ${PROJECT_NAME} 
+						   opengl32
+						   freeglutd.lib
+						   glad.lib
+	                       glfw3.lib
+						   glew32d.lib
+						   FreeImaged.lib
+						   glm_static.lib
+						    )
+	else()
+		message("\nOpenGL_GLUT_GLFW_Program -- Debug mode Linux ****************")
+		target_link_libraries( ${PROJECT_NAME} 
+						   ${OPENGL_LIBRARY}
+							-gl
+							-pthread 
+							dl
+						   libglad.a
+	                       libglfw3.a
+						   libGLEWd.a
+						   libglut.a
+						   libfreeimage.a
+						   libglm_static.a
+						    )
 
-	# Run macro
-	GroupSources(src)
-endif()
+	endif()					    	
+else()
+	if ( WIN32 )
+		message("\nOpenGL_GLUT_GLFW_Program -- Release mode Windows ****************")
+		target_link_libraries( ${PROJECT_NAME} 
+						   opengl32
+						   freeglut.lib
+						   glad.lib
+	                       glfw3.lib
+						   glew32.lib
+						   FreeImage.lib
+						   glm_static.lib
+						    )
+	else()
+		message("\nOpenGL_GLUT_GLFW_Program -- Release mode Linux ****************")
+		target_link_libraries( ${PROJECT_NAME} 
+						  ${OPENGL_LIBRARY}
+							-gl
+							-pthread 
+							dl
+						   libglad.a
+	                       libglfw3.a
+						   libGLEW.a
+						   libglut.a
+						   libfreeimage.a
+						   libglm_static.a
+						    )
 
-
-
-
+	endif()	
+endif ()                      
