@@ -12,8 +12,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include <glad/glad.h>
-#include <glfw/glfw3.h>
+#include <GL/glew.h>
+#include <GL/glut.h>
 
 // Usage of degrees is deprecated. Use radians for glm functions.
 #define GLM_FORCE_RADIANS
@@ -61,8 +61,7 @@ const GLfloat floorcol2[4][3] = {
 const GLubyte floorinds2[1][6] = { { 0, 1, 2, 0, 2, 3 } } ;
 
 // Treat this as a destructor function. Delete any dynamically allocated memory here
-void deleteBuffers() 
-{
+void deleteBuffers() {
 	glDeleteVertexArrays(numobjects, VAOs);
 	glDeleteBuffers(numperobj*numobjects, buffers);
 }
@@ -85,22 +84,23 @@ void initobject(GLuint object, GLfloat * vert, GLint sizevert, GLfloat * col, GL
   glEnableVertexAttribArray(1);
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[Elements+offset]) ; 
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeind, inds, GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeind, inds,GL_STATIC_DRAW);
   PrimType[object] = type;
   NumElems[object] = sizeind;
   // Prevent further modification of this VAO by unbinding it
   glBindVertexArray(0);
 }
 
-void drawobject(GLuint object) 
-{
+void drawobject(GLuint object) {
   glBindVertexArray(VAOs[object]);
   glDrawElements(PrimType[object], NumElems[object], GL_UNSIGNED_BYTE, 0); 
   glBindVertexArray(0);
 }
 
 /****************   BASIC SETUP FOR DRAWING OBJECTS ***********************/
-void display(GLFWwindow* window)
+
+
+void display(void)
 {
   /* Clear all pixels  */
   glClear (GL_COLOR_BUFFER_BIT);
@@ -114,94 +114,90 @@ void display(GLFWwindow* window)
 
   // The old OpenGL code of using glBegin... glEnd no longer appears. 
   // The new version uses vertex array and vertex buffer objects from init.   
-  drawobject(FLOOR);
+
+  drawobject(FLOOR) ;
   drawobject(FLOOR2) ; 
-  
+
+
+  /* don't wait!  
+   * start processing buffered OpenGL routines 
+   */
+  glFlush ();
 }
 
 /* Defines a Mouse callback to zoom in and out */
 /* This is done by modifying gluLookAt         */
 /* The actual motion is in mousedrag           */
 /* mouse simply sets state for mousedrag       */
-
-
-/* Defines what to do when various mouse */
-void mouse_callback(GLFWwindow* window, int button, int action, int mods)
+void mouse_callback(int button, int state, int x, int y) 
 {
-  if (button == GLFW_MOUSE_BUTTON_LEFT)
+  if (button == GLUT_LEFT_BUTTON) 
   {
-    if (action == GLFW_RELEASE)
+    if (state == GLUT_UP) 
 	{
       // Do Nothing ;
     }
-    else if (action == GLFW_PRESS)
+    else if (state == GLUT_DOWN) 
 	{
-	  double x, y;
-	  glfwGetCursorPos(window, &x, &y);
-
-      mouseoldx = (int)x ; 
-	  mouseoldy = (int)y ; // so we can move wrt x , y 
+      mouseoldx = x ; mouseoldy = y ; // so we can move wrt x , y 
     }
   }
-  else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS )
-  { 
-	// Reset gluLookAt
+  else if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) 
+  { // Reset gluLookAt
     eyeloc = 2.0 ;
-	//modelview = glm::lookAt(glm::vec3(0, -eyeloc, eyeloc), glm::vec3(0, 0, 0), glm::vec3(0, 1, 1));
-    modelview = glm::lookAt(glm::vec3(0, eyeloc, eyeloc), glm::vec3(0, 0, 0), glm::vec3(0, 1, -1));
+	modelview = glm::lookAt(glm::vec3(0, -eyeloc, eyeloc), glm::vec3(0, 0, 0), glm::vec3(0, 1, 1));
 	// Send the updated matrix to the shader
 	glUniformMatrix4fv(modelviewPos, 1, GL_FALSE, &modelview[0][0]);
+    glutPostRedisplay() ;
   }
 }
 
-/* Defines what to do when various mousedrag */
-void mousedrag_callback(GLFWwindow* window, double x, double y)
+void mousedrag_callback(int x, int y) 
 {
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-	{
-		int yloc = (int)y - mouseoldy;	// We will use the y coord to zoom in/out
+  int yloc = y - mouseoldy  ;    // We will use the y coord to zoom in/out
+  
+  eyeloc  += 0.005f*yloc ;         // Where do we look from
+  
+  if (eyeloc < 0) 
+	  eyeloc = 0.0 ;
+  mouseoldy = y ;
 
-		eyeloc += 0.005f*yloc;		// Where do we look from
+  // Set the eye location 
+  modelview = glm::lookAt(glm::vec3(0, -eyeloc, eyeloc), glm::vec3(0, 0, 0), glm::vec3(0, 1, 1));
+  
+  // Send the updated matrix over to the shader
+  glUniformMatrix4fv(modelviewPos, 1, GL_FALSE, &modelview[0][0]);
 
-		if (eyeloc < 0)
-			eyeloc = 0.0;
-
-		mouseoldy = (int)y;
-
-		// Set the eye location 
-		//modelview = glm::lookAt(glm::vec3(0, -eyeloc, eyeloc), glm::vec3(0, 0, 0), glm::vec3(0, 1, 1));
-        modelview = glm::lookAt(glm::vec3(0, eyeloc, eyeloc), glm::vec3(0, 0, 0), glm::vec3(0, 1, -1));
-
-		// Send the updated matrix over to the shader
-		glUniformMatrix4fv(modelviewPos, 1, GL_FALSE, &modelview[0][0]);
-	}
+  glutPostRedisplay() ;
 }
 
 /* Defines what to do when various keys are pressed */
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void keyboard_callback(unsigned char key, int x, int y)
 {
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS )
+  switch (key) 
   {
-	  deleteBuffers();
-	  glfwSetWindowShouldClose(window, true);
+    case 27:  // Escape to quit
+      deleteBuffers();
+      exit(0) ;
+      break ;
+    default:
+      break ;
   }
 }
 
 /* Reshapes the window appropriately */
-void reshape_callback(GLFWwindow* window, int w, int h)
+void reshape_callback(int w, int h)
 {
   glViewport (0, 0, (GLsizei) w, (GLsizei) h);
-  
+
   // Think about the rationale for this choice
   // What would happen if you changed near and far planes? 
-  // Note that the field of view takes in a radian angle!
-  
+  // Note that the field of view takes in a radian angle
   if (h > 0)
   {
 	  projection = glm::perspective(30.0f / 180.0f * glm::pi<float>(), (GLfloat)w / (GLfloat)h, 1.0f, 10.0f);
 	  glUniformMatrix4fv(projectionPos, 1, GL_FALSE, &projection[0][0]);
   }
- 
 }
 
 void init (void) 
@@ -213,9 +209,8 @@ void init (void)
   projection = glm::mat4(1.0f); // The identity matrix
 
   // Think about this.  Why is the up vector not normalized?
-  //modelview = glm::lookAt(glm::vec3(0, -eyeloc, eyeloc), glm::vec3(0, 0, 0), glm::vec3(0, 1, 1));
-  modelview = glm::lookAt(glm::vec3(0, eyeloc, eyeloc), glm::vec3(0, 0, 0), glm::vec3(0, 1, -1));
-  
+  modelview = glm::lookAt(glm::vec3(0,-eyeloc,eyeloc), glm::vec3(0,0,0), glm::vec3(0,1,1));
+
   // Now create the buffer objects to be used in the scene later
   // Remember to delete all the VAOs and VBOs that you create when the program terminates!
   glGenVertexArrays(numobjects, VAOs);
@@ -233,17 +228,17 @@ void init (void)
   fragment_shader_path = "//home//manuel//Documents//Projects//OpenGL//GLFW_GLAD_GLUT_GLEW_cmake_project//src//mytest1_glut//shaders//nop.frag";
 
 #elif defined(_WIN32) || defined(WIN32) 
-  vertex_shader_path = "C://Users//juanv//Documents//CG-CMAKE//GLFW_GLAD_GLUT_GLEW_cmake_project//src//Lab10//shaders//nop.vert";
-  fragment_shader_path = "C://Users//juanv//Documents//CG-CMAKE//GLFW_GLAD_GLUT_GLEW_cmake_project//src//Lab10//shaders//nop.frag";
+  vertex_shader_path =  "C://Users//juanv//Documents//CG-CMAKE//GLFW_GLAD_GLUT_GLEW_cmake_project//src//mytest1_glut//shaders//nop.vert";
+  fragment_shader_path =  "C://Users//juanv//Documents//CG-CMAKE//GLFW_GLAD_GLUT_GLEW_cmake_project//src//mytest1_glut//shaders//nop.frag";
 #endif
 
 
   // Initialize the shader program
   vertexshader = initshaders(GL_VERTEX_SHADER, vertex_shader_path.c_str());
   fragmentshader = initshaders(GL_FRAGMENT_SHADER, fragment_shader_path.c_str());
-
+  
   shaderprogram = initprogram(vertexshader, fragmentshader) ;
-
+  
   // Get the positions of the uniform variables
   projectionPos = glGetUniformLocation(shaderprogram, "projection");
   modelviewPos = glGetUniformLocation(shaderprogram, "modelview");
@@ -258,69 +253,30 @@ int main(int argc, char** argv)
   // Requests the type of buffers (Single, RGB).
   // Think about what buffers you would need...
 
-  glfwInit(); //glutInit(&argc, argv);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glutInit(&argc, argv);
+  glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB) ;
+  glutInitWindowSize (500, 500); 
+  glutInitWindowPosition (100, 100);
 
-  // glfw window creation
+  // glut window creation
   // --------------------
-  GLFWwindow* window = glfwCreateWindow(500, 500, "GLFW: Simple Demo with Shaders", NULL, NULL);
-  
-  if (window == NULL)
-  {
-	  std::cout << "Failed to create GLFW window" << std::endl;
-	  glfwTerminate();
-	  return -1;
-  }
+  glutCreateWindow ("Simple Demo with Shaders");
 
-  glfwMakeContextCurrent(window);
-  glfwSetWindowPos(window, 100, 100);
-
-  // glad: load all OpenGL function pointers
-  // ---------------------------------------
-  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-  {
-	  std::cout << "Failed to initialize GLAD" << std::endl;
-	  return -1;
+  GLenum err = glewInit(); 
+  if (GLEW_OK != err) {
+    std::cerr << "Error: " << glewGetString(err) << std::endl;
   }
 
   init (); // Always initialize first
 
-  glfwSetFramebufferSizeCallback(window, reshape_callback);	//glutReshapeFunc(reshape) ;
-  glfwSetKeyCallback(window, key_callback);					//glutKeyboardFunc(keyboard);
-  glfwSetMouseButtonCallback(window, mouse_callback);		//glutMouseFunc(mouse) ;
-  glfwSetCursorPosCallback(window, mousedrag_callback);		//glutMotionFunc(mousedrag) ;
+  // Now, we define callbacks and functions for various tasks.
+  glutDisplayFunc(display); 
+  glutReshapeFunc(reshape_callback) ;
+  glutKeyboardFunc(keyboard_callback);
+  glutMouseFunc(mouse_callback) ;
+  glutMotionFunc(mousedrag_callback) ;
 
-  // First scene render
-  reshape_callback(window, 500, 500);
-  display(window); //glutDisplayFunc(display); 
-  
-
-  // render loop
-  // Start the main code
-  while (!glfwWindowShouldClose(window)) //glutMainLoop(); 
-  {
-	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	  display(window); //glutDisplayFunc(display); 
-
-	  // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-	  // -------------------------------------------------------------------------------
-	  glfwSwapBuffers(window);
-	  glfwPollEvents();
-
-	  //glFlush();
-  }
-  
+  glutMainLoop(); // Start the main code
   deleteBuffers(); // Program termination. Delete the buffers generated in init().
-  
-  glfwDestroyWindow(window);
-
-  // glfw: terminate, clearing all previously allocated GLFW resources.
-  // ------------------------------------------------------------------
-  glfwTerminate();
-  
   return 0;   /* ANSI C requires main to return int. */
-
 }
